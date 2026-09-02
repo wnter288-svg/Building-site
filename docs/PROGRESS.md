@@ -4,6 +4,8 @@
 
 Формат: `ГГГГ-ММ-ДД | [имя] | что изменил | что напарнику важно знать`
 
+2026-09-02 | Даня | Добавил хук .githooks/pre-push (блокирует push в main) и .gitattributes; branch protection на GitHub недоступна на бесплатном плане для приватных реп | ОБЯЗАТЕЛЬНО выполни у себя: `git config core.hooksPath .githooks`
+
 2026-09-02 | Даня | Завёл документацию (PROJECT, MVP, STRUCTURE, TODO, RECOMMENDATIONS, README), 4 навыка Claude Code в .claude/skills/, .gitignore, CI на GitHub Actions, папки frontend/ и backend/ | Прочитай docs/PROJECT.md и TODO.md; твоя зона — frontend/, задачи там же
 
 2026-09-02 | Даня | Создал ветку dev, обновил CLAUDE.md: работаем в dev, в main переносим только через PR | Переключись на dev (`git checkout dev`) и работай там, main трогать не нужно

@@ -14,10 +14,15 @@ Building-site/
 ├── CLAUDE.md              # правила работы для Claude Code (читается автоматически)
 ├── README.md              # точка входа: что это и как запустить
 ├── TODO.md                # текущие задачи обоих разработчиков
+├── .gitignore             # что не кладём в репозиторий (в т.ч. .env)
+├── .gitattributes         # LF в репозитории; хуки обязаны быть с LF
 │
 ├── .github/
 │   └── workflows/
 │       └── ci.yml         # CI: проверки на каждый push и PR
+│
+├── .githooks/
+│   └── pre-push           # блокирует прямой push в main
 │
 ├── .claude/
 │   └── skills/            # навыки Claude Code, общие для обоих разработчиков

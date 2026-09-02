@@ -1,0 +1,33 @@
+#!/bin/sh
+# Блокирует прямой push в main. Изменения в main попадают только через
+# Pull Request (см. CLAUDE.md).
+#
+# Включается один раз на каждой машине:
+#   git config core.hooksPath .githooks
+#
+# Это замена branch protection на GitHub: она недоступна для приватных
+# репозиториев на бесплатном плане. Хук ловит случайный push, но не
+# защищает от намеренного (--no-verify его обходит).
+
+protected="main"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+	case "$remote_ref" in
+	"refs/heads/$protected")
+		echo ""
+		echo "  ✋ Прямой push в '$protected' запрещён."
+		echo ""
+		echo "  В $protected изменения попадают только через Pull Request:"
+		echo ""
+		echo "    git checkout dev"
+		echo "    git push"
+		echo "    gh pr create --base main --head dev"
+		echo ""
+		echo "  Подробности — в CLAUDE.md, раздел «Перенос dev → main»."
+		echo ""
+		exit 1
+		;;
+	esac
+done
+
+exit 0
