@@ -19,7 +19,9 @@ Building-site/
 │
 ├── .github/
 │   └── workflows/
-│       └── ci.yml         # CI: проверки на каждый push и PR
+│       ├── ci.yml                # проверки на каждый push и PR
+│       ├── deploy-frontend.yml   # main → Cloudflare Pages
+│       └── deploy-backend.yml    # main → VPS по SSH
 │
 ├── .githooks/
 │   └── pre-push           # блокирует прямой push в main
@@ -38,6 +40,7 @@ Building-site/
 │   ├── API.md             # контракт между фронтом и бэком
 │   ├── PROGRESS.md        # лог изменений, новые записи сверху
 │   ├── HANDOFF.md         # прямые сообщения напарнику
+│   ├── DEPLOY.md          # как код попадает на живой сайт
 │   └── RECOMMENDATIONS.md # советы и запасные пути от Claude
 │
 ├── frontend/              # зона Тимофея — сайт (Astro, предварительно)
@@ -56,6 +59,7 @@ Building-site/
 | Узнать, что напарник сделал | `docs/PROGRESS.md` |
 | Проверить, нет ли сообщения тебе | `docs/HANDOFF.md` |
 | Правила работы с гитом и зонами | `CLAUDE.md` |
+| Как выкатить на прод | `docs/DEPLOY.md` |
 | Идеи и запасные варианты | `docs/RECOMMENDATIONS.md` |
 
 ---

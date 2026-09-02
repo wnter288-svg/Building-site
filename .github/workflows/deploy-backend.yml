@@ -1,0 +1,115 @@
+# Автодеплой бэка на VPS по SSH.
+#
+# Срабатывает только на main — то есть после мерджа PR из dev.
+# Пока нет кода в backend/ или не заведены секреты, workflow
+# завершается успешно, ничего не делая. Что нужно настроить — в
+# docs/DEPLOY.md.
+name: Deploy backend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false # деплой бэка не прерываем на середине
+
+env:
+  # Куда кладём приложение на сервере и как называется systemd-сервис.
+  # Меняешь здесь — поменяй и в docs/DEPLOY.md.
+  REMOTE_DIR: /opt/building-site
+  SERVICE: building-site-api
+
+jobs:
+  deploy:
+    name: Сборка и выкладка на сервер
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Готовы ли к деплою
+        id: check
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          ready=true
+          if [ ! -f backend/package.json ]; then
+            echo "::notice::В backend/ ещё нет проекта — деплой пропущен"
+            ready=false
+          fi
+          if [ -z "$SSH_HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_KEY" ]; then
+            echo "::notice::Нет секретов SSH_HOST / SSH_USER / SSH_PRIVATE_KEY — деплой пропущен (см. docs/DEPLOY.md)"
+            ready=false
+          fi
+          echo "ready=$ready" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v5
+        if: steps.check.outputs.ready == 'true'
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Установка зависимостей и тесты
+        if: steps.check.outputs.ready == 'true'
+        working-directory: backend
+        run: |
+          npm ci
+          npm test --if-present
+          npm run build --if-present
+
+      - name: Подготовка SSH
+        if: steps.check.outputs.ready == 'true'
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Фиксируем ключ хоста, чтобы не отключать проверку подлинности
+          # сервера (StrictHostKeyChecking=no открыл бы MITM).
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Выкладка файлов
+        if: steps.check.outputs.ready == 'true'
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          # --delete убирает на сервере файлы, которых больше нет в репозитории.
+          # .env и данные заявок исключены: они живут только на сервере.
+          rsync -az --delete \
+            --exclude '.env' \
+            --exclude 'data/' \
+            --exclude 'node_modules/' \
+            -e "ssh -i ~/.ssh/id_ed25519" \
+            backend/ "$SSH_USER@$SSH_HOST:$REMOTE_DIR/"
+
+      - name: Установка зависимостей и перезапуск сервиса
+        if: steps.check.outputs.ready == 'true'
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" \
+            "cd $REMOTE_DIR && npm ci --omit=dev && sudo systemctl restart $SERVICE"
+
+      - name: Проверка, что сервис поднялся
+        if: steps.check.outputs.ready == 'true'
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          sleep 5
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" \
+            "systemctl is-active --quiet $SERVICE" \
+            || { echo "::error::Сервис $SERVICE не запустился после деплоя"; exit 1; }
+          echo "OK: $SERVICE работает"
+
+      - name: Убрать ключ
+        if: always()
+        run: rm -f ~/.ssh/id_ed25519

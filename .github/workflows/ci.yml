@@ -103,7 +103,8 @@ jobs:
           missing=0
           for f in README.md CLAUDE.md TODO.md \
                    docs/PROJECT.md docs/MVP.md docs/STRUCTURE.md \
-                   docs/API.md docs/PROGRESS.md docs/HANDOFF.md; do
+                   docs/API.md docs/PROGRESS.md docs/HANDOFF.md \
+                   docs/DEPLOY.md docs/RECOMMENDATIONS.md; do
             if [ ! -f "$f" ]; then
               echo "::error::Нет файла $f"
               missing=1
