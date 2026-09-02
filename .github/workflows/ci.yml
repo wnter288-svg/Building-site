@@ -1,0 +1,113 @@
+# Проверки на каждый push в dev и на каждый PR в main.
+# Пока в зонах нет кода, шаги сборки/тестов пропускаются — проверка
+# секретов работает с первого дня.
+name: CI
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  secrets:
+    name: Секреты не в репозитории
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: .env не должен быть в git
+        run: |
+          if git ls-files --error-unmatch .env 2>/dev/null; then
+            echo "::error::.env отслеживается git — секреты утекут. Убери его: git rm --cached .env"
+            exit 1
+          fi
+          echo "OK: .env не отслеживается"
+
+      - name: Поиск захардкоженных секретов
+        run: |
+          # Ищем присваивание непустого значения секретной переменной прямо в коде.
+          # .github исключён: там секреты передаются через ${{ secrets.* }},
+          # а сам этот файл иначе нашёл бы собственный шаблон поиска.
+          if grep -rInE '(API_KEY|SECRET|PASSWORD|BOT_TOKEN|ACCESS_TOKEN)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"']{8,}' \
+               --include='*.js' --include='*.ts' --include='*.jsx' --include='*.tsx' \
+               --include='*.astro' --include='*.json' --include='*.yml' \
+               --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.github . ; then
+            echo "::error::Похоже на секрет в коде. Перенеси его в .env"
+            exit 1
+          fi
+          echo "OK: секретов в коде не найдено"
+
+  build:
+    name: Сборка и тесты (${{ matrix.zone }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        zone: [frontend, backend]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Есть ли что проверять
+        id: check
+        run: |
+          if [ -f "${{ matrix.zone }}/package.json" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Зона ${{ matrix.zone }} ещё пустая — пропускаем"
+          fi
+
+      - uses: actions/setup-node@v5
+        if: steps.check.outputs.exists == 'true'
+        with:
+          node-version: '20'
+
+      - name: Установка зависимостей
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ${{ matrix.zone }}
+        run: npm ci || npm install
+
+      # Линт, тесты и сборка запускаются, только если такой скрипт объявлен
+      # в package.json — иначе шаг пропускается, а не падает.
+      - name: Линт
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ${{ matrix.zone }}
+        run: npm run lint --if-present
+
+      - name: Тесты
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ${{ matrix.zone }}
+        run: npm test --if-present
+
+      - name: Сборка
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ${{ matrix.zone }}
+        run: npm run build --if-present
+
+      - name: Аудит зависимостей
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ${{ matrix.zone }}
+        # Не роняем сборку из-за аудита — но результат виден в логе.
+        continue-on-error: true
+        run: npm audit --audit-level=high
+
+  docs:
+    name: Документация на месте
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Обязательные файлы существуют
+        run: |
+          missing=0
+          for f in README.md CLAUDE.md TODO.md \
+                   docs/PROJECT.md docs/MVP.md docs/STRUCTURE.md \
+                   docs/API.md docs/PROGRESS.md docs/HANDOFF.md \
+                   docs/DEPLOY.md docs/RECOMMENDATIONS.md; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Нет файла $f"
+              missing=1
+            fi
+          done
+          exit $missing
