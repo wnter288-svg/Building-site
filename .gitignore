@@ -1,0 +1,29 @@
+# Секреты — никогда в репозиторий.
+# Нужна новая переменная? Добавь её в .env.example с пустым значением.
+.env
+.env.*
+!.env.example
+
+# Зависимости
+node_modules/
+
+# Сборка
+dist/
+build/
+.astro/
+.output/
+
+# Логи
+*.log
+npm-debug.log*
+
+# Заявки клиентов (персональные данные, в git им не место)
+backend/data/
+*.sqlite
+*.sqlite3
+
+# Редакторы и ОС
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
