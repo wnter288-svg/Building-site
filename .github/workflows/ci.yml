@@ -14,7 +14,7 @@ jobs:
     name: Секреты не в репозитории
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: .env не должен быть в git
         run: |
@@ -46,7 +46,7 @@ jobs:
       matrix:
         zone: [frontend, backend]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Есть ли что проверять
         id: check
@@ -58,7 +58,7 @@ jobs:
             echo "Зона ${{ matrix.zone }} ещё пустая — пропускаем"
           fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         if: steps.check.outputs.exists == 'true'
         with:
           node-version: '20'
@@ -96,7 +96,7 @@ jobs:
     name: Документация на месте
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Обязательные файлы существуют
         run: |
