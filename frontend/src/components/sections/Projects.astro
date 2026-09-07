@@ -1,0 +1,72 @@
+---
+import Eyebrow from '../ui/Eyebrow.astro';
+import { projects } from '../../content/site';
+---
+<section id="projects" class="projects">
+  <div class="projects__inner">
+    <div class="projects__head" data-reveal>
+      <div class="projects__headline">
+        <Eyebrow>{projects.eyebrow}</Eyebrow>
+        <h2 class="projects__title">{projects.title}</h2>
+      </div>
+      <p class="projects__note">{projects.note}</p>
+    </div>
+    <div class="projects__grid">
+      {projects.items.map((p, i) => (
+        <a class="pc arow" data-reveal data-delay={i * 90} href="#request">
+          <div class="pc__frame">
+            <div class="pc-in">
+              <div class="pc-img"></div>
+            </div>
+            <span class="pc__caption">{p.caption}</span>
+          </div>
+          <div class="pc__meta">
+            <div class="pc__meta-text">
+              <span class="pc__name">{p.title}</span>
+              <span class="pc__sub">{p.meta}</span>
+            </div>
+            <span class="arw" aria-hidden="true">→</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .projects { background: var(--c-svet); padding: clamp(72px, 9vw, 120px) clamp(20px, 4vw, 24px); }
+  .projects__inner { max-width: 1280px; margin: 0 auto; }
+  .projects__head {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 24px; margin-bottom: clamp(40px, 5vw, 72px);
+  }
+  .projects__headline { display: flex; flex-direction: column; gap: clamp(18px, 2vw, 24px); max-width: 600px; }
+  .projects__title {
+    margin: 0;
+    font: 300 clamp(30px, 3.6vw, 54px)/1.15 var(--font-display);
+    letter-spacing: var(--ls-display);
+    color: var(--text-strong);
+  }
+  .projects__note { font: var(--t-caption); color: var(--text-faint); max-width: 30ch; }
+  .projects__grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: clamp(24px, 3vw, 40px);
+  }
+  .pc { display: flex; flex-direction: column; gap: 20px; color: inherit; }
+  .pc__frame { position: relative; aspect-ratio: 4/5; overflow: hidden; border: 1px solid var(--border-hairline); }
+  .pc-in { position: absolute; left: 0; right: 0; top: -10%; height: 120%; will-change: transform; }
+  .pc-img { position: absolute; inset: 0; background: var(--n-050); }
+  .pc__caption {
+    position: absolute; left: 24px; right: 24px; bottom: 24px;
+    font: var(--t-eyebrow); letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .pc__meta {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    border-top: 1px solid var(--border-hairline); padding-top: 16px;
+  }
+  .pc__meta-text { display: flex; flex-direction: column; gap: 6px; }
+  .pc__name { font: 400 21px/1.3 var(--font-display); color: var(--text-strong); }
+  .pc__sub { font: var(--t-caption); color: var(--text-muted); }
+  .arw { font: var(--t-small); color: var(--text-accent); }
+</style>

@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/sections/Header.astro';
+import Hero from '../components/sections/Hero.astro';
+import About from '../components/sections/About.astro';
+import Services from '../components/sections/Services.astro';
+import Process from '../components/sections/Process.astro';
+import Principles from '../components/sections/Principles.astro';
+import Projects from '../components/sections/Projects.astro';
+import Faq from '../components/sections/Faq.astro';
+import Request from '../components/sections/Request.astro';
+import Footer from '../components/sections/Footer.astro';
+import { showProjects } from '../content/site';
+
+export const prerender = true;
+---
+<Layout>
+  <Header />
+  <main id="main">
+    <Hero />
+    <About />
+    <Services />
+    <Process />
+    <Principles />
+    {showProjects && <Projects />}
+    <Faq />
+    <Request />
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  import { initBehaviors } from '../scripts/behaviors';
+  import { initForm } from '../scripts/form';
+
+  initBehaviors({ videoSrc: '/hero.mp4', posterSrc: '/poster.jpg' });
+  initForm();
+</script>

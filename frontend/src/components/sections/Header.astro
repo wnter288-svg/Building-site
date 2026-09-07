@@ -1,0 +1,112 @@
+---
+import Logo from '../ui/Logo.astro';
+import Button from '../ui/Button.astro';
+import { nav, header, todo, isStub } from '../../content/site';
+
+const phoneHref = isStub(todo.phoneHref) ? null : `tel:${todo.phoneHref}`;
+---
+<header class="dm-head" data-header>
+  <div class="dm-dark bar">
+    <a href="#top" class="dm-logo" aria-label="DIMORA, на початок">
+      <Logo width={170} />
+    </a>
+
+    <nav class="nav-links" aria-label="Основна навігація">
+      {nav.map((i) => <a href={i.href}>{i.label}</a>)}
+    </nav>
+
+    <div class="bar__right">
+      {phoneHref
+        ? <a class="nav-phone ln" href={phoneHref}>{todo.phoneLabel}</a>
+        : <span class="nav-phone">{todo.phoneLabel}</span>}
+      <Button variant="outline" size="sm" href={header.cta.href}>{header.cta.label}</Button>
+      <button
+        class="burger"
+        type="button"
+        aria-label={header.menuOpen}
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-burger
+      >
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mmenu dm-dark" id="mobile-menu" data-menu hidden>
+  <div class="mmenu__top">
+    <Logo width={150} />
+    <button class="mclose" type="button" aria-label={header.menuClose} data-menu-close>×</button>
+  </div>
+  <nav class="mmenu__nav" aria-label="Мобільна навігація">
+    {nav.map((i) => <a href={i.href}>{i.label}</a>)}
+  </nav>
+  <div class="mmenu__foot">
+    {phoneHref
+      ? <a href={phoneHref}>{todo.phoneLabel}</a>
+      : <span>{todo.phoneLabel}</span>}
+    <Button href={header.cta.href} full>{header.cta.label}</Button>
+  </div>
+</div>
+
+<style>
+  .bar {
+    background: transparent;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 24px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+  }
+  .dm-logo { display: block; flex: 0 0 auto; }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: clamp(20px, 2.6vw, 38px);
+    font: var(--t-small);
+    color: var(--c-len);
+  }
+  .nav-links a { color: inherit; }
+
+  .bar__right { display: flex; align-items: center; gap: 24px; }
+  .nav-phone { font: var(--t-small); letter-spacing: .02em; color: var(--c-len); }
+
+  .burger {
+    width: 44px; height: 44px;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 7px;
+    background: none; border: 0; cursor: pointer; padding: 0;
+  }
+  .burger span { width: 24px; height: 1px; background: var(--c-len); display: block; }
+
+  .mmenu {
+    background: var(--c-hvoia);
+    display: flex;
+    flex-direction: column;
+    padding: clamp(20px, 4vw, 24px);
+  }
+  .mmenu[hidden] { display: none; }
+  .mmenu__top { display: flex; align-items: center; justify-content: space-between; gap: 24px; color: var(--c-len); }
+  .mclose {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: 0; cursor: pointer;
+    font: 300 28px/1 var(--font-display); color: var(--c-len);
+  }
+  .mmenu__nav {
+    flex: 1;
+    display: flex; flex-direction: column; justify-content: center;
+    gap: clamp(16px, 3vh, 28px);
+  }
+  .mmenu__nav a { font: 300 clamp(30px, 9vw, 44px)/1.1 var(--font-display); color: var(--c-len); }
+  .mmenu__foot {
+    display: flex; flex-direction: column; gap: 16px;
+    border-top: 1px solid var(--border-hairline);
+    padding-top: 24px;
+  }
+  .mmenu__foot a, .mmenu__foot span { font: var(--t-body); color: var(--c-len); }
+</style>

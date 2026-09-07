@@ -1,0 +1,47 @@
+---
+import Eyebrow from '../ui/Eyebrow.astro';
+import { about, todo } from '../../content/site';
+---
+<section id="about" class="about">
+  <div class="about__grid">
+    <div data-reveal>
+      <Eyebrow>{about.eyebrow}</Eyebrow>
+      <h2 class="about__title">{about.title}</h2>
+    </div>
+    <div class="about__text">
+      {about.paragraphs.map((p, i) => (
+        <p data-reveal data-delay={i * 90}>{p}</p>
+      ))}
+      <div class="about__sig" data-reveal data-delay="270">
+        <span class="about__names">{todo.founders}</span>
+        <span class="about__role">{about.foundersRole}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about { background: var(--c-svet); padding: clamp(72px, 9vw, 120px) clamp(20px, 4vw, 24px); }
+  .about__grid {
+    max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+    gap: clamp(36px, 6vw, 96px);
+  }
+  .about__grid > div:first-child { display: flex; flex-direction: column; gap: clamp(20px, 2.5vw, 28px); }
+  .about__title {
+    margin: 0;
+    font: 300 clamp(30px, 3.6vw, 54px)/1.15 var(--font-display);
+    letter-spacing: var(--ls-display);
+    color: var(--text-strong);
+    max-width: 22ch; text-wrap: pretty;
+  }
+  .about__text { display: flex; flex-direction: column; gap: clamp(20px, 2vw, 26px); max-width: 60ch; }
+  .about__text p { font: var(--t-body); color: var(--text-body); text-wrap: pretty; }
+  .about__sig {
+    border-top: 1px solid var(--border-hairline);
+    padding-top: 20px; margin-top: 12px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .about__names { font: 400 20px/1.4 var(--font-display); color: var(--text-strong); }
+  .about__role { font: var(--t-caption); color: var(--text-muted); }
+</style>

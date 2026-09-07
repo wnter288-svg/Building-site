@@ -3,7 +3,7 @@
 Карта репозитория. Обновляется при каждом появлении/переносе значимой
 папки или файла — иначе она врёт и от неё нет пользы.
 
-**Последнее обновление:** 2026-09-02
+**Последнее обновление:** 2026-09-07
 
 ---
 
@@ -14,40 +14,56 @@ Building-site/
 ├── CLAUDE.md              # правила работы для Claude Code (читается автоматически)
 ├── README.md              # точка входа: что это и как запустить
 ├── TODO.md                # текущие задачи обоих разработчиков
-├── .gitignore             # что не кладём в репозиторий (в т.ч. .env)
+├── .gitignore
 ├── .gitattributes         # LF в репозитории; хуки обязаны быть с LF
 │
-├── .github/
-│   └── workflows/
-│       ├── ci.yml                # проверки на каждый push и PR
-│       └── deploy-pages.yml      # main → GitHub Pages
+├── .github/workflows/
+│   └── ci.yml             # секреты, типы, сборка, наличие документации
 │
 ├── .githooks/
 │   └── pre-push           # блокирует прямой push в main
 │
 ├── .claude/
-│   └── skills/            # навыки Claude Code, общие для обоих разработчиков
-│       ├── project-docs/       # поддержка документации в актуальном виде
-│       ├── project-structure/  # контроль чистоты структуры
-│       ├── test-project/       # прогон тестов работоспособности и безопасности
-│       └── advisor/            # рекомендации и запасные планы
+│   ├── launch.json        # конфиг локального запуска сайта
+│   └── skills/            # общие навыки Claude Code
 │
 ├── docs/                  # вся документация проекта
-│   ├── PROJECT.md         # что делаем и зачем — начинать читать отсюда
+│   ├── PROJECT.md         # что делаем и зачем — читать первым
 │   ├── MVP.md             # объём первой версии, критерий готовности
 │   ├── STRUCTURE.md       # этот файл
-│   ├── API.md             # контракт между фронтом и бэком
+│   ├── API.md             # контракт: POST /api/lead
+│   ├── DEPLOY.md          # как код попадает на сайт
 │   ├── PROGRESS.md        # лог изменений, новые записи сверху
 │   ├── HANDOFF.md         # прямые сообщения напарнику
-│   ├── DEPLOY.md          # как код попадает на живой сайт
-│   └── RECOMMENDATIONS.md # советы и запасные пути от Claude
+│   └── RECOMMENDATIONS.md # советы и запасные пути
 │
-├── frontend/              # зона Тимофея — сайт, публикуется на GitHub Pages
-│   └── README.md          # пока только заглушка, проект не начат
+├── frontend/              # сайт DIMORA (Astro + TypeScript)
+│   ├── astro.config.mjs   # адаптер Vercel, sitemap
+│   ├── .env.example       # имена переменных Telegram, без значений
+│   ├── public/            # hero.mp4, poster.jpg, favicon.svg
+│   └── src/
+│       ├── content/site.ts        # ВЕСЬ текст сайта и заглушки
+│       ├── layouts/Layout.astro   # шрифты, метатеги, JSON-LD
+│       ├── pages/
+│       │   ├── index.astro        # сборка секций
+│       │   ├── robots.txt.ts
+│       │   └── api/lead.ts        # приём заявки → Telegram
+│       ├── components/
+│       │   ├── sections/          # Header Hero About Services Process
+│       │   │                      # Principles Projects Faq Request Footer
+│       │   └── ui/                # Logo Button Eyebrow
+│       ├── lib/                   # validation.ts, rate-limit.ts
+│       ├── scripts/               # behaviors.ts, form.ts
+│       └── styles/
+│           ├── global.css         # стили страницы
+│           └── tokens/            # дизайн-система из Claude Design
 │
-└── backend/               # зона Дани — приём заявок, работает только локально
-    └── README.md          # пока только заглушка, проект не начат
+└── backend/               # НЕ используется, см. docs/PROJECT.md
 ```
+
+Обработчик заявки живёт внутри Astro, отдельного Express-сервиса нет.
+Стиль правится в `styles/tokens/` — по компонентам цветов и кеглей
+не хардкодим.
 
 Стек в зонах ещё не выбран — см. `docs/PROJECT.md`.
 
@@ -64,6 +80,8 @@ Building-site/
 | Проверить, нет ли сообщения тебе | `docs/HANDOFF.md` |
 | Правила работы с гитом и зонами | `CLAUDE.md` |
 | Как выкатить на прод | `docs/DEPLOY.md` |
+| Формат заявки | `docs/API.md` |
+| Поменять текст на сайте | `frontend/src/content/site.ts` |
 | Идеи и запасные варианты | `docs/RECOMMENDATIONS.md` |
 
 ---
@@ -111,3 +129,8 @@ Building-site/
 - **2026-09-02** — отказались от VPS и своего хостинга в пользу GitHub
   Pages. Причина: проект учебный, настройка сервера ради тренировки не
   окупается. Следствие: бэкенд работает только локально.
+- **2026-09-07** — свёрстан лендинг DIMORA по макету из Claude Design.
+  Стек: Astro + TypeScript, деплой на Vercel. Отказались от GitHub Pages
+  и отдельного Express: форма шлёт заявки в Telegram, а токен нельзя
+  отдавать в браузер — нужен серверный обработчик, которого на Pages нет.
+  Следствие: `backend/` осталась пустой, деление зон требует пересмотра.

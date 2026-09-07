@@ -1,0 +1,75 @@
+---
+/** Кнопка/ссылка. Спецификация — Button.jsx из дизайн-системы.
+ *  href превращает элемент в <a>, без него это <button>. */
+interface Props {
+  variant?: 'primary' | 'accent' | 'outline' | 'ghost';
+  size?: 'md' | 'sm';
+  href?: string;
+  type?: 'button' | 'submit';
+  full?: boolean;
+  disabled?: boolean;
+  class?: string;
+  id?: string;
+}
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  type = 'button',
+  full = false,
+  disabled = false,
+  class: className,
+  id,
+} = Astro.props;
+
+const cls = ['btn', `btn--${variant}`, `btn--${size}`, full && 'btn--full', className];
+---
+{href
+  ? <a href={href} id={id} class:list={cls}><slot /></a>
+  : <button type={type} id={id} disabled={disabled} class:list={cls}><slot /></button>}
+
+<style>
+  .btn {
+    font: var(--t-button);
+    letter-spacing: var(--ls-button);
+    text-transform: uppercase;
+    border-radius: var(--r-1);
+    border: var(--hairline) solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s-12);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background var(--d-base) var(--ease-calm),
+      color var(--d-base) var(--ease-calm),
+      border-color var(--d-base) var(--ease-calm);
+  }
+  .btn--md { height: var(--control-h); padding: 0 32px; }
+  .btn--sm { height: var(--control-h-sm); padding: 0 20px; }
+  .btn--full { width: 100%; }
+
+  .btn--primary { background: var(--text-strong); color: var(--bg-page); }
+  .btn--primary:hover { background: var(--c-moh); color: var(--bg-page); }
+
+  .btn--accent { background: var(--text-accent); color: var(--text-on-accent); }
+  .btn--accent:hover { background: var(--accent-700); color: var(--text-on-accent); }
+
+  .btn--outline { background: transparent; color: var(--text-strong); border-color: var(--border-soft); }
+  .btn--outline:hover { border-color: var(--border-strong); background: var(--bg-inset); color: var(--text-strong); }
+
+  .btn--ghost {
+    background: transparent;
+    color: var(--text-strong);
+    padding: 0 0 var(--s-8);
+    height: auto;
+    border: 0;
+    border-bottom: var(--hairline) solid var(--border-accent);
+    border-radius: 0;
+  }
+  .btn--ghost:hover { color: var(--text-accent); }
+
+  .btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+</style>

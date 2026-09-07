@@ -1,0 +1,57 @@
+---
+import Logo from '../ui/Logo.astro';
+import { footer, nav, todo, isStub } from '../../content/site';
+
+const phoneHref = isStub(todo.phoneHref) ? null : `tel:${todo.phoneHref}`;
+const mailHref = isStub(todo.email) ? null : `mailto:${todo.email}`;
+const sectionLinks = nav.filter((n) => n.href !== '#projects');
+---
+<footer class="dm-dark foot">
+  <div class="foot__grid">
+    <div class="foot__brand">
+      <Logo width={150} />
+      <p class="foot__about">{footer.about}</p>
+    </div>
+
+    <nav class="foot__col" aria-label={footer.columns.sections}>
+      <span class="foot__k">{footer.columns.sections}</span>
+      {sectionLinks.map((i) => <a href={i.href}>{i.label}</a>)}
+    </nav>
+
+    <div class="foot__col">
+      <span class="foot__k">{footer.columns.contacts}</span>
+      {phoneHref ? <a class="ln" href={phoneHref}>{todo.phoneLabel}</a> : <span>{todo.phoneLabel}</span>}
+      {mailHref ? <a class="ln" href={mailHref}>{todo.email}</a> : <span>{todo.email}</span>}
+      <span>{todo.officeAddress}, Київ</span>
+    </div>
+
+    <div class="foot__col">
+      <span class="foot__k">{footer.columns.legal}</span>
+      {isStub(todo.privacyUrl)
+        ? <span>{footer.privacyLabel}</span>
+        : <a href={todo.privacyUrl}>{footer.privacyLabel}</a>}
+      <span class="foot__copy">{footer.copyright}</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    border-top: 1px solid var(--border-hairline);
+    padding: clamp(48px, 6vw, 72px) clamp(20px, 4vw, 24px) clamp(32px, 4vw, 48px);
+  }
+  .foot__grid {
+    max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: clamp(32px, 4vw, 56px);
+  }
+  .foot__brand { display: flex; flex-direction: column; gap: 20px; color: var(--c-len); }
+  .foot__about { font: var(--t-caption); color: var(--text-faint); max-width: 30ch; }
+  .foot__col { display: flex; flex-direction: column; gap: 12px; }
+  .foot__k {
+    font: var(--t-eyebrow); letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+    color: var(--text-faint); margin-bottom: 8px;
+  }
+  .foot__col a, .foot__col span:not(.foot__k) { font: var(--t-small); color: var(--text-body); width: fit-content; }
+  .foot__copy { color: var(--text-faint) !important; }
+</style>

@@ -1,0 +1,23 @@
+:root{
+  /* default: settles, never bounces */
+  --ease-calm:cubic-bezier(.22,.61,.36,1);
+  --ease-in-out:cubic-bezier(.4,0,.2,1);
+  /* reveals, image scale */
+  --ease-out-slow:cubic-bezier(.16,1,.3,1);
+  --d-fast:140ms;
+  --d-base:240ms;
+  --d-slow:420ms;
+  --d-reveal:720ms;
+  --d-image:1200ms;
+  --stagger:80ms;
+}
+@media (prefers-reduced-motion:reduce){
+  :root{
+    --d-fast:0ms;
+    --d-base:0ms;
+    --d-slow:0ms;
+    --d-reveal:0ms;
+    --d-image:0ms;
+    --stagger:0ms;
+  }
+}
