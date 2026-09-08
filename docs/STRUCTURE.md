@@ -3,7 +3,7 @@
 Карта репозитория. Обновляется при каждом появлении/переносе значимой
 папки или файла — иначе она врёт и от неё нет пользы.
 
-**Последнее обновление:** 2026-09-07
+**Последнее обновление:** 2026-09-08
 
 ---
 
@@ -40,7 +40,7 @@ Building-site/
 ├── frontend/              # сайт DIMORA (Astro + TypeScript)
 │   ├── astro.config.mjs   # адаптер Vercel, sitemap
 │   ├── .env.example       # имена переменных Telegram, без значений
-│   ├── public/            # hero.mp4, poster.jpg, favicon.svg
+│   ├── public/            # hero.mp4, poster.jpg, about.jpg, favicon.svg
 │   └── src/
 │       ├── content/site.ts        # ВЕСЬ текст сайта и заглушки
 │       ├── layouts/Layout.astro   # шрифты, метатеги, JSON-LD

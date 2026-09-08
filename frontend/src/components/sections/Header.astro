@@ -51,11 +51,15 @@ const phoneHref = isStub(todo.phoneHref) ? null : `tel:${todo.phoneHref}`;
 </div>
 
 <style>
+  /* Горизонтальный отступ переехал на .dm-head, чтобы контейнер 1280
+     центрировался внутри ширины контента — ровно как в секциях. Пока
+     отступ был здесь, он добавлялся ПОВЕРХ центрирования, и логотип
+     стоял на 24px правее текста всех остальных блоков. */
   .bar {
     background: transparent;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 0 clamp(20px, 4vw, 24px);
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;

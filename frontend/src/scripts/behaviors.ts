@@ -11,6 +11,27 @@
 const isReduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isSmall = () => matchMedia('(max-width: 820px)').matches;
 
+/**
+ * Ширина полосы прокрутки в переменную --sbw.
+ *
+ * Нужна для выравнивания по странице: секции центрируют контейнер 1280
+ * внутри ширины контента, а она полосу НЕ включает. Считать то же самое
+ * через 100vw нельзя — он полосу включает, и текст разъезжается с
+ * остальными секциями на половину полосы (около 7px).
+ */
+function trackScrollbar() {
+  const de = document.documentElement;
+  const apply = () => {
+    de.style.setProperty('--sbw', Math.max(0, innerWidth - de.clientWidth) + 'px');
+  };
+  apply();
+  addEventListener('resize', apply, { passive: true });
+  // Наблюдатель за размером ловит и те изменения ширины, при которых
+  // событие resize не приходит: появление и пропажу полосы прокрутки
+  // при смене длины страницы, зум, эмуляцию вьюпорта.
+  new ResizeObserver(apply).observe(de);
+}
+
 /* ——— Первый экран: постер всегда, видео только на широком экране ——— */
 function setupHero(videoSrc: string, posterSrc: string) {
   const poster = document.querySelector<HTMLElement>('[data-hero-poster]');
@@ -86,53 +107,60 @@ function setupReveals() {
   // выполнится вовсе, контент останется видимым — это важнее анимации.
   if (isReduced()) { els.forEach((e) => e.classList.add('is-in')); return; }
 
+  const timers = new WeakMap<HTMLElement, number>();
+
   const show = (e: HTMLElement) => {
+    clearTimeout(timers.get(e));
     if (e.classList.contains('is-in')) return;
     const d = Number(e.dataset.delay ?? 0);
-    setTimeout(() => e.classList.add('is-in'), d);
+    timers.set(e, window.setTimeout(() => e.classList.add('is-in'), d));
   };
 
-  const pending = new Set<HTMLElement>();
+  const hide = (e: HTMLElement) => {
+    clearTimeout(timers.get(e));
+    e.classList.remove('is-in');
+  };
+
   els.forEach((e) => {
     e.classList.add('rv');
+    // То, что уже в кадре при загрузке, показываем сразу — без мигания
     if (e.getBoundingClientRect().top < innerHeight * 0.92) e.classList.add('is-in');
-    else pending.add(e);
   });
-  if (!pending.size) return;
 
+  /**
+   * Появление повторяется при каждом заходе элемента в кадр, а не один
+   * раз за визит. Поэтому наблюдение не снимается.
+   *
+   * Показываем и прячем на разных границах: показ — когда элемент вошёл
+   * в окно, урезанное снизу на 6%; сброс — только когда он целиком ушёл
+   * за край окна. Без этого зазора элемент на самой границе мигал бы
+   * туда-сюда при малейшем движении колеса.
+   */
   const io = new IntersectionObserver((entries) => {
     entries.forEach((en) => {
-      if (!en.isIntersecting) return;
       const el = en.target as HTMLElement;
-      show(el);
-      pending.delete(el);
-      io.unobserve(el);
+      if (en.isIntersecting) { show(el); return; }
+      const r = en.boundingClientRect;
+      if (r.bottom < 0 || r.top > innerHeight) hide(el);
     });
-  }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
-  pending.forEach((e) => io.observe(e));
+  }, { threshold: 0, rootMargin: '0px 0px -6% 0px' });
+  els.forEach((e) => io.observe(e));
 
   /**
    * Подстраховка по геометрии. IntersectionObserver может не сработать —
    * например, во встроенной панели или скрытой вкладке. Без этого куска
    * страница ниже первого экрана осталась бы прозрачной навсегда,
-   * а это хуже, чем отсутствие анимации.
+   * а это хуже, чем отсутствие анимации. Только показывает, никогда
+   * не прячет: задача этого кода — чтобы контент не пропал.
    */
   let queued = false;
   const sweep = () => {
     queued = false;
-    pending.forEach((e) => {
+    els.forEach((e) => {
+      if (e.classList.contains('is-in')) return;
       const r = e.getBoundingClientRect();
-      if (r.top < innerHeight * 0.94 && r.bottom > 0) {
-        show(e);
-        pending.delete(e);
-        io.unobserve(e);
-      }
+      if (r.top < innerHeight * 0.94 && r.bottom > 0) show(e);
     });
-    if (!pending.size) {
-      io.disconnect();
-      removeEventListener('scroll', onMove);
-      removeEventListener('resize', onMove);
-    }
   };
   const onMove = () => { if (!queued) { queued = true; requestAnimationFrame(sweep); } };
   addEventListener('scroll', onMove, { passive: true });
@@ -336,6 +364,7 @@ function startParallax() {
 }
 
 export function initBehaviors(opts: { videoSrc: string; posterSrc: string }) {
+  trackScrollbar();
   setupHero(opts.videoSrc, opts.posterSrc);
   setupHeader();
   setupReveals();

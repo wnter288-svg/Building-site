@@ -1,13 +1,40 @@
 ---
 import Eyebrow from '../ui/Eyebrow.astro';
-import { about, todo } from '../../content/site';
+import { about, todo, isStub } from '../../content/site';
+
+const photo = todo.aboutPhoto;
+const hasPhoto = !isStub(photo);
 ---
 <section id="about" class="about">
-  <div class="about__grid">
-    <div data-reveal>
+  <!-- Кадр в край: сеткой служит сама секция, поэтому фото не заперто
+       внутри контейнера с отступами и упирается в левый край экрана
+       и в верх с низом секции. -->
+  <div class="about__media dm-dark">
+    <div class="pc-in">
+      {hasPhoto && (
+        <img
+          class="about__img"
+          src={photo}
+          alt={about.mediaAlt}
+          width="710"
+          height="888"
+          loading="lazy"
+          decoding="async"
+        />
+      )}
+    </div>
+    <div class="about__veil"></div>
+
+    <!-- Плашка в обычном потоке, а не absolute: при длинном переводе или
+         зуме она растит кадр, а не выезжает за него на светлый фон, где
+         расчёт контраста перестал бы действовать. -->
+    <div class="about__plate" data-reveal>
       <Eyebrow>{about.eyebrow}</Eyebrow>
       <h2 class="about__title">{about.title}</h2>
     </div>
+  </div>
+
+  <div class="about__body">
     <div class="about__text">
       {about.paragraphs.map((p, i) => (
         <p data-reveal data-delay={i * 90}>{p}</p>
@@ -21,26 +48,134 @@ import { about, todo } from '../../content/site';
 </section>
 
 <style>
-  .about { background: var(--c-svet); padding: clamp(72px, 9vw, 120px) clamp(20px, 4vw, 24px); }
-  .about__grid {
-    max-width: 1280px; margin: 0 auto;
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
-    gap: clamp(36px, 6vw, 96px);
+  .about {
+    background: var(--c-svet);
+    display: grid;
+    grid-template-columns: 1fr;
   }
-  .about__grid > div:first-child { display: flex; flex-direction: column; gap: clamp(20px, 2.5vw, 28px); }
+
+  /* Сплит включается на 821px — там же, где behaviors.ts отпускает
+     параллакс (isSmall = max-width 820px). Один порог вместо двух.
+     Колонки неравные: светлая половина шире, чтобы верх страницы
+     не стал сплошной тёмной массой между hero и «Послугами». */
+  @media (min-width: 821px) {
+    .about { grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); }
+  }
+
+  .about__media {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 4 / 5;
+    width: 100%;
+    /* В одну колонку 4:5 на всю ширину даёт кадр выше экрана.
+       Потолок превращает его в горизонтальную полосу над текстом. */
+    max-height: min(78svh, 640px);
+  }
+  /* На десктопе высоту задаёт не пропорция, а соседняя колонка: сетка
+     тянет оба столбца на высоту строки, а её задаёт текст с отступами.
+     Поэтому фото упирается ровно в верх и низ секции. */
+  @media (min-width: 821px) {
+    .about__media { aspect-ratio: auto; max-height: none; height: 100%; }
+  }
+
+  /* Слой параллакса. Имя .pc-in не случайно: behaviors.ts собирает их по
+     всей странице, так что скрипт править не нужно. Геометрию приходится
+     дублировать — в Projects.astro она в scoped-стилях. */
+  .pc-in {
+    position: absolute;
+    left: 0; right: 0; top: -10%;
+    height: 120%;
+    will-change: transform;
+    z-index: 0;
+  }
+  .about__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .about__veil {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(27, 36, 31, .2);
+    pointer-events: none;
+  }
+
+  /* Затемнение под текстом. Замерено по этому снимку: самая светлая
+     точка в зоне плашки — подсвеченная стена, 0.81 яркости. Два слоя
+     вместе дают 76% плотности и 5.95:1 контраста, норма 4.5 держится. */
+  .about__plate {
+    position: relative;
+    z-index: 2;
+    --plate-fade: clamp(var(--s-32), 4vw, var(--s-56));
+    /* Надзаголовок красится в --text-muted, а это Лён на 66% —
+       прозрачность роняет контраст до 3.4:1 при любой плашке.
+       Переопределяем переменную, а не лезем в чужой компонент. */
+    --text-muted: var(--c-len);
+    /* Отступы скромные: высоту кадра задаёт колонка с текстом,
+       и всё, что съест плашка, отнимется у фотографии. */
+    padding: clamp(var(--s-24), 2.4vw, var(--s-40))
+             clamp(var(--s-20), 3vw, var(--s-40))
+             var(--plate-fade);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(var(--s-12), 1.4vw, var(--s-20));
+    background: linear-gradient(180deg,
+      rgba(27, 36, 31, .74) 0%,
+      rgba(27, 36, 31, .70) calc(100% - var(--plate-fade)),
+      rgba(27, 36, 31, 0) 100%);
+  }
+  /* Текст на фотографии встаёт на ту же вертикаль, что и текст всех
+     остальных секций: те центрируют контейнер 1280 внутри ширины
+     контента. --sbw вычитает полосу прокрутки, которую 100vw включает,
+     а ширина контента — нет. Переменную ставит trackScrollbar(). */
+  @media (min-width: 821px) {
+    .about__plate {
+      padding-left: max(
+        clamp(20px, 4vw, 24px),
+        calc((100vw - var(--sbw, 0px) - 1280px) / 2)
+      );
+    }
+  }
+
   .about__title {
     margin: 0;
     font: 300 clamp(30px, 3.6vw, 54px)/1.15 var(--font-display);
     letter-spacing: var(--ls-display);
     color: var(--text-strong);
-    max-width: 22ch; text-wrap: pretty;
+    text-wrap: balance;
   }
-  .about__text { display: flex; flex-direction: column; gap: clamp(20px, 2vw, 26px); max-width: 60ch; }
+
+  .about__body {
+    display: flex;
+    align-items: center;
+    padding: clamp(72px, 9vw, 120px) clamp(20px, 4vw, 24px);
+  }
+  /* Правый край текста выравнивается по тому же полю, что и контейнер
+     1280 у остальных секций: на широких экранах отступ растёт сам. */
+  @media (min-width: 821px) {
+    .about__body {
+      padding-left: clamp(var(--s-32), 5vw, var(--s-96));
+      padding-right: max(
+        clamp(20px, 4vw, 24px),
+        calc((100vw - var(--sbw, 0px) - 1280px) / 2)
+      );
+    }
+  }
+
+  .about__text {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 2vw, 26px);
+    max-width: var(--measure);
+  }
   .about__text p { font: var(--t-body); color: var(--text-body); text-wrap: pretty; }
   .about__sig {
     border-top: 1px solid var(--border-hairline);
-    padding-top: 20px; margin-top: 12px;
-    display: flex; flex-direction: column; gap: 4px;
+    padding-top: 20px;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
   .about__names { font: 400 20px/1.4 var(--font-display); color: var(--text-strong); }
   .about__role { font: var(--t-caption); color: var(--text-muted); }
