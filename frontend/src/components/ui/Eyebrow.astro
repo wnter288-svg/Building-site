@@ -1,0 +1,27 @@
+---
+/** Надзаголовок с короткой линией слева. Спецификация — Eyebrow.jsx из дизайн-системы. */
+interface Props { class?: string }
+const { class: className } = Astro.props;
+---
+<div class:list={['eyebrow', className]}>
+  <span class="eyebrow__rule" aria-hidden="true"></span>
+  <span><slot /></span>
+</div>
+
+<style>
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: var(--s-12);
+    font: var(--t-eyebrow);
+    letter-spacing: var(--ls-eyebrow);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .eyebrow__rule {
+    width: 32px;
+    height: 1px;
+    background: var(--border-accent);
+    flex: 0 0 auto;
+  }
+</style>

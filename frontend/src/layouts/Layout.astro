@@ -1,0 +1,75 @@
+---
+/**
+ * Каркас страницы: шрифты, метатеги, разметка организации, skip-ссылка.
+ *
+ * Шрифты самохостятся через @fontsource, а не тянутся с CDN Google:
+ * нет зависимости от чужого origin, нет лишнего DNS+TLS до первого текста.
+ * Берём только нужные начертания и только кириллицу с латиницей —
+ * вьетнамский и греческий подмножества не грузим.
+ *
+ * Cinzel не подключён вовсе: он был нужен только логотипу,
+ * а логотип теперь SVG в кривых.
+ */
+import '@fontsource/cormorant-garamond/latin-300.css';
+import '@fontsource/cormorant-garamond/latin-400.css';
+import '@fontsource/cormorant-garamond/latin-500.css';
+import '@fontsource/cormorant-garamond/cyrillic-300.css';
+import '@fontsource/cormorant-garamond/cyrillic-400.css';
+import '@fontsource/cormorant-garamond/cyrillic-500.css';
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+import { meta, todo, isStub } from '../content/site';
+
+interface Props { title?: string; description?: string }
+const { title = meta.title, description = meta.description } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com').toString();
+const ogImage = new URL('/og.png', Astro.site ?? 'https://example.com').toString();
+
+/* Разметка организации для поиска. Поля с незаполненными данными
+   не выводим совсем — пустой telephone хуже отсутствующего. */
+const org: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'GeneralContractor',
+  name: meta.name,
+  description: meta.description,
+  url: canonical,
+  areaServed: meta.region,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Київ',
+    addressCountry: 'UA',
+  },
+};
+if (!isStub(todo.phoneHref)) org.telephone = todo.phoneHref;
+if (!isStub(todo.email)) org.email = todo.email;
+---
+<!doctype html>
+<html lang={meta.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#1B241F" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={meta.name} />
+    <meta property="og:locale" content={meta.locale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(org)} is:inline />
+  </head>
+  <body>
+    <a class="skip" href="#main">Перейти до вмісту</a>
+    <slot />
+  </body>
+</html>

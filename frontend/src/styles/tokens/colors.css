@@ -1,0 +1,81 @@
+:root{
+  /* — base palette (brand names) — */
+  --c-hvoia:#1B241F;        /* Хвоя — основа */
+  --c-moh:#3E5A4C;          /* Мох — второстепенный текст, границы, ховеры */
+  --c-len:#E4DFD6;          /* Лён — текст на тёмном */
+  --c-svet:#F6F4EF;         /* Свет — светлый фон */
+  --c-dub:#8A6A45;          /* Дуб — акцент на светлом */
+  --c-dub-light:#AD8656;    /* Дуб светлый — акцент на тёмном */
+
+  /* — neutral ramp, derived from Хвоя/Свет by mixing only — */
+  --n-900:var(--c-hvoia);
+  --n-800:#242F28;
+  --n-700:#2E3B33;
+  --n-600:var(--c-moh);
+  --n-500:#5E7466;
+  --n-400:#8A9A90;
+  --n-300:#B9C0B8;
+  --n-200:#D5D2C8;
+  --n-100:var(--c-len);
+  --n-050:#EFEBE3;
+  --n-000:var(--c-svet);
+  --white:#FFFFFF;
+
+  /* — accent ramp — */
+  --accent-900:#5C4529;
+  --accent-700:#6F5436;
+  --accent-500:var(--c-dub);
+  --accent-400:var(--c-dub-light);
+  --accent-200:#D8C4A9;
+  --accent-050:#F1E9DC;
+
+  /* — semantic status — */
+  --status-success:#3E6B4E;
+  --status-success-bg:#E7EFE8;
+  --status-warning:#A8791F;
+  --status-warning-bg:#F7EEDA;
+  --status-danger:#8E3B2F;
+  --status-danger-bg:#F4E5E1;
+  --status-info:#3B5A6B;
+  --status-info-bg:#E4ECF0;
+
+  /* — semantic aliases: LIGHT ground (default) — */
+  --bg-page:var(--c-svet);
+  --bg-surface:var(--white);
+  --bg-surface-muted:var(--n-050);
+  --bg-inset:var(--accent-050);
+  --text-strong:var(--c-hvoia);
+  --text-body:#2E3B33;
+  --text-muted:var(--c-moh);
+  --text-faint:var(--n-500);
+  --text-accent:var(--c-dub);
+  --text-on-accent:var(--c-svet);
+  --border-hairline:rgba(27,36,31,.14);
+  --border-soft:rgba(27,36,31,.22);
+  --border-strong:var(--c-moh);
+  --border-accent:var(--c-dub);
+  --overlay-scrim:rgba(27,36,31,.62);
+  --link:var(--c-dub);
+  --link-hover:var(--accent-700);
+}
+
+/* — semantic aliases: DARK ground. Put on any container. — */
+.dm-dark{
+  --bg-page:var(--c-hvoia);
+  --bg-surface:#212B24;
+  --bg-surface-muted:#26312A;
+  --bg-inset:rgba(228,223,214,.06);
+  --text-strong:var(--c-len);
+  --text-body:var(--c-len);
+  --text-muted:rgba(228,223,214,.66);
+  --text-faint:rgba(228,223,214,.44);
+  --text-accent:var(--c-dub-light);
+  --text-on-accent:var(--c-hvoia);
+  --border-hairline:rgba(228,223,214,.16);
+  --border-soft:rgba(228,223,214,.26);
+  --border-strong:rgba(228,223,214,.5);
+  --border-accent:var(--c-dub-light);
+  --link:var(--c-dub-light);
+  --link-hover:var(--accent-200);
+  color:var(--text-body);background:var(--bg-page);
+}

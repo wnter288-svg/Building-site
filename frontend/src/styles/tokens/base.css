@@ -1,0 +1,19 @@
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg-page);color:var(--text-body);font:var(--t-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p{margin:0}
+a{color:var(--link);text-decoration:none;transition:color var(--d-fast) var(--ease-calm),border-color var(--d-fast) var(--ease-calm)}
+a:hover{color:var(--link-hover)}
+::selection{background:var(--accent-200);color:var(--c-hvoia)}
+:focus-visible{outline:none;box-shadow:var(--e-focus)}
+.dm-display{font:var(--t-display);letter-spacing:var(--ls-display);color:var(--text-strong)}
+.dm-h1{font:var(--t-h1);letter-spacing:var(--ls-display);color:var(--text-strong)}
+.dm-h2{font:var(--t-h2);color:var(--text-strong)}
+.dm-h3{font:var(--t-h3);color:var(--text-strong)}
+.dm-number{font:var(--t-number);color:var(--text-accent)}
+.dm-lead{font:var(--t-lead);color:var(--text-body)}
+.dm-body{font:var(--t-body)}
+.dm-small{font:var(--t-small)}
+.dm-caption{font:var(--t-caption);color:var(--text-muted)}
+.dm-eyebrow{font:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--text-muted)}
+.dm-logotype{font-family:var(--font-logo);letter-spacing:var(--ls-logo);text-transform:uppercase}
+.dm-rule{border:0;border-top:var(--hairline) solid var(--border-hairline);margin:0}

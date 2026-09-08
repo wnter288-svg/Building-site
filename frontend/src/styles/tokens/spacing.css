@@ -1,0 +1,22 @@
+:root{
+  --s-2:2px;--s-4:4px;--s-8:8px;--s-12:12px;--s-16:16px;--s-20:20px;
+  --s-24:24px;--s-32:32px;--s-40:40px;--s-56:56px;--s-72:72px;--s-96:96px;--s-128:128px;
+
+  --gutter:24px;
+  --page-max:1280px;
+  --measure:66ch;          /* max text line length */
+  --section-y:96px;        /* vertical rhythm between page sections */
+  --section-y-tight:56px;
+
+  /* corner radii — DIMORA is near-square; radius is a whisper, never a feature */
+  --r-0:0px;
+  --r-1:2px;
+  --r-2:4px;
+  --r-pill:999px;          /* tags only */
+
+  --hairline:1px;
+  --rule:2px;              /* the logo rule weight, scaled */
+  --control-h:48px;
+  --control-h-sm:38px;
+}
+@media (max-width:700px){:root{--gutter:20px;--section-y:64px;--section-y-tight:40px}}

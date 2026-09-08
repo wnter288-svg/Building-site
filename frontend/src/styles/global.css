@@ -1,0 +1,77 @@
+@import './tokens/colors.css';
+@import './tokens/typography.css';
+@import './tokens/spacing.css';
+@import './tokens/elevation.css';
+@import './tokens/motion.css';
+@import './tokens/base.css';
+
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{background:var(--c-svet);overflow-x:hidden}
+p{margin:0}
+
+/* Ссылка «пропустить к содержимому» — первое, что получает фокус на странице */
+.skip{position:absolute;left:-9999px;top:0;z-index:100;padding:12px 20px;background:var(--c-hvoia);color:var(--c-len);font:var(--t-small)}
+.skip:focus{left:16px;top:16px}
+
+/* ——— Появление строк заголовка ——— */
+@keyframes dmLine{from{transform:translateY(108%)}to{transform:translateY(0)}}
+@keyframes dmRun{0%{transform:scaleY(0);transform-origin:top}42%{transform:scaleY(1);transform-origin:top}58%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.lm{display:block;overflow:hidden;padding-bottom:.09em;margin-bottom:-.09em}
+.lm>span{display:block}
+.hero-lines .lm>span{animation:dmLine 1s var(--ease-out-slow) both}
+.lines-r .lm>span{transform:translateY(108%)}
+.lines-r.is-in .lm>span{animation:dmLine 1s var(--ease-out-slow) both}
+
+/* ——— Появление блоков при скролле ——— */
+.rv{opacity:0;transform:translateY(22px)}
+.rv.is-in{opacity:1;transform:none;transition:opacity .85s var(--ease-out-slow),transform .85s var(--ease-out-slow)}
+
+/* ——— Шапка ——— */
+.dm-head{position:fixed;top:0;left:0;right:0;z-index:60;padding:26px clamp(20px,4vw,24px);border-bottom:1px solid transparent;transition:padding .45s var(--ease-calm),background .45s var(--ease-calm),border-color .45s var(--ease-calm)}
+.dm-head.is-cond{padding:13px clamp(20px,4vw,24px);background:rgba(27,36,31,.86);backdrop-filter:blur(12px);border-bottom-color:rgba(228,223,214,.14)}
+.dm-logo{width:170px;transition:width .45s var(--ease-calm);color:var(--c-len)}
+.dm-head.is-cond .dm-logo{width:126px}
+.dm-logo svg{width:100%;height:auto;display:block}
+
+/* ——— Подчёркивание ссылки по ховеру ——— */
+.ln{position:relative}
+.ln::after{content:"";position:absolute;left:0;bottom:-6px;height:1px;width:0;background:currentColor;transition:width .28s var(--ease-calm)}
+.ln:hover::after{width:100%}
+
+.arw{transition:transform .28s var(--ease-calm)}
+.arow:hover .arw{transform:translateX(7px)}
+
+/* ——— Аккордеон ——— */
+.faq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--ease-calm),opacity .3s var(--ease-calm);opacity:0}
+.faq-a>div{overflow:hidden}
+.faq-i.is-open .faq-a{grid-template-rows:1fr;opacity:1}
+.faq-v{transition:transform .3s var(--ease-calm)}
+.faq-i.is-open .faq-v{transform:scaleY(0)}
+
+/* ——— Карточки проектов ——— */
+.pc-img{transition:transform 1.2s var(--ease-out-slow)}
+.pc:hover .pc-img{transform:scale(1.05)}
+
+.magnet{display:inline-flex;transition:transform .3s var(--ease-calm)}
+
+/* ——— Мобильное меню ——— */
+.burger{display:none}
+.mmenu{position:fixed;inset:0;z-index:70;opacity:0;pointer-events:none;transition:opacity .35s var(--ease-calm)}
+.mmenu.is-open{opacity:1;pointer-events:auto}
+.nav-links a,.nav-phone{white-space:nowrap}
+
+@media(max-width:1100px){.hero-cap{display:none}}
+@media(max-width:1120px){
+  .nav-links,.nav-phone{display:none!important}
+  .burger{display:flex!important}
+}
+@media(max-width:760px){
+  .pr-sticky{position:static!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .hero-lines .lm>span,.lines-r .lm>span{animation:none!important;transform:none!important}
+  .rv{opacity:1!important;transform:none!important}
+  .scroll-run{animation:none!important}
+  .pc-img,.faq-a,.faq-v,.dm-head,.dm-logo,.magnet,.arw{transition:none!important}
+}

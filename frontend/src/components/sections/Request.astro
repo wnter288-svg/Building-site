@@ -1,0 +1,135 @@
+---
+import Eyebrow from '../ui/Eyebrow.astro';
+import Button from '../ui/Button.astro';
+import { request } from '../../content/site';
+const f = request.fields;
+---
+<section id="request" class="dm-dark request">
+  <div class="request__grid">
+    <div class="request__intro" data-reveal>
+      <Eyebrow>{request.eyebrow}</Eyebrow>
+      <h2 class="request__title">{request.title}</h2>
+      <p class="request__lead">{request.lead}</p>
+      <div class="request__contacts">
+        {request.contacts.map((c) => (
+          <div class="rc">
+            <span class="rc__k">{c.label}</span>
+            {c.href
+              ? <a class="ln rc__v" href={c.href}>{c.value}</a>
+              : <span class="rc__v">{c.value}</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <form class="req-form" data-reveal data-delay="120" data-lead-form novalidate>
+      <div class="req-form__row">
+        <div class="field">
+          <label class="field__label" for="rf-name">{f.name.label}<span class="req">&nbsp;*</span></label>
+          <input class="field__input" id="rf-name" name="name" type="text" placeholder={f.name.placeholder}
+                 required autocomplete="name" aria-describedby="err-name" />
+          <span class="field__err" id="err-name" hidden></span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="rf-tel">{f.tel.label}<span class="req">&nbsp;*</span></label>
+          <input class="field__input" id="rf-tel" name="tel" type="tel" placeholder={f.tel.placeholder}
+                 required autocomplete="tel" inputmode="tel" aria-describedby="err-tel" />
+          <span class="field__err" id="err-tel" hidden></span>
+        </div>
+        <div class="field">
+          <label class="field__label" for="rf-loc">{f.loc.label}</label>
+          <input class="field__input" id="rf-loc" name="loc" type="text" placeholder={f.loc.placeholder} />
+        </div>
+        <div class="field">
+          <label class="field__label" for="rf-area">{f.area.label}</label>
+          <input class="field__input" id="rf-area" name="area" type="text" placeholder={f.area.placeholder} inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="rf-msg">{f.msg.label}</label>
+        <textarea class="field__input field__input--ta" id="rf-msg" name="msg" rows="3" placeholder={f.msg.placeholder}></textarea>
+      </div>
+
+      <!-- Приманка для ботов. Людям не видна и не доступна с клавиатуры;
+           если поле заполнено — заявку молча отбрасываем на сервере. -->
+      <div class="hp" aria-hidden="true">
+        <label for="rf-site">Не заповнюйте це поле</label>
+        <input id="rf-site" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <label class="consent">
+        <input type="checkbox" name="consent" required aria-describedby="err-consent" />
+        <span>{request.consent}</span>
+      </label>
+      <span class="field__err" id="err-consent" hidden></span>
+
+      <div class="req-form__foot">
+        <Button variant="accent" type="submit" id="rf-submit">{request.submit}</Button>
+        <span class="req-note" data-form-note role="status" aria-live="polite">{request.note}</span>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .request { padding: clamp(72px, 9vw, 120px) clamp(20px, 4vw, 24px); }
+  .request__grid {
+    max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: clamp(40px, 6vw, 96px); align-items: start;
+  }
+  .request__intro { display: flex; flex-direction: column; gap: clamp(20px, 2.5vw, 28px); }
+  .request__title {
+    margin: 0;
+    font: 300 clamp(30px, 3.6vw, 54px)/1.15 var(--font-display);
+    letter-spacing: var(--ls-display);
+    color: var(--text-strong); max-width: 20ch; text-wrap: pretty;
+  }
+  .request__lead { font: var(--t-lead); color: var(--text-muted); max-width: 44ch; text-wrap: pretty; }
+  .request__contacts { display: flex; flex-direction: column; gap: 16px; margin-top: 12px; }
+  .rc { border-top: 1px solid var(--border-hairline); padding-top: 14px; display: flex; justify-content: space-between; gap: 16px; }
+  .rc__k { font: var(--t-eyebrow); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--text-faint); }
+  .rc__v { font: var(--t-small); color: var(--text-body); }
+
+  .req-form {
+    display: flex; flex-direction: column; gap: clamp(24px, 3vw, 32px);
+    border: 1px solid var(--border-hairline); padding: clamp(24px, 3.5vw, 48px);
+  }
+  .req-form__row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: clamp(24px, 3vw, 32px); }
+
+  .field { display: flex; flex-direction: column; gap: var(--s-8); }
+  .field__label { font: var(--t-eyebrow); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--text-muted); }
+  .req { color: var(--text-accent); }
+  .field__input {
+    width: 100%; font: var(--t-body); color: var(--text-strong);
+    background: transparent; border: 0;
+    border-bottom: var(--hairline) solid var(--border-soft);
+    border-radius: 0; padding: 0 0 var(--s-12); outline: none;
+    transition: border-color var(--d-base) var(--ease-calm);
+  }
+  .field__input--ta { resize: vertical; line-height: 1.7; }
+  .field__input::placeholder { color: var(--text-faint); }
+  .field__input:focus { border-bottom-color: var(--border-accent); border-bottom-width: var(--rule); }
+  .field__input[aria-invalid='true'] { border-bottom-color: var(--status-danger); border-bottom-width: var(--rule); }
+  .field__err { font: var(--t-caption); color: var(--status-danger); }
+  .field__err[hidden] { display: none; }
+
+  /* Honeypot: убран из потока и от скринридеров, но остаётся в DOM для ботов */
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .consent {
+    display: flex; align-items: flex-start; gap: 12px;
+    font: var(--t-caption); color: var(--text-muted); cursor: pointer;
+  }
+  .consent input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--c-dub-light); flex: 0 0 auto; }
+
+  .req-form__foot {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 20px;
+    border-top: 1px solid var(--border-hairline); padding-top: clamp(20px, 2.5vw, 28px);
+  }
+  .req-note { font: var(--t-caption); color: var(--text-faint); }
+  .req-note[data-state='ok'] { color: var(--status-success); }
+  .req-note[data-state='err'] { color: var(--status-danger); }
+  .dm-dark .req-note[data-state='ok'] { color: var(--c-dub-light); }
+</style>
