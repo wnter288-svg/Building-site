@@ -41,7 +41,7 @@ Building-site/
 │   ├── astro.config.mjs   # адаптер Vercel, sitemap
 │   ├── .env.example       # имена переменных Telegram, без значений
 │   ├── public/            # hero.mp4, poster.jpg, about.jpg, 404.jpg,
-│   │                      # favicon.svg
+│   │                      # project-1..3.jpg, favicon.svg
 │   └── src/
 │       ├── content/site.ts        # ВЕСЬ текст сайта и заглушки
 │       ├── layouts/Layout.astro   # шрифты, метатеги, JSON-LD
