@@ -32,55 +32,13 @@ function trackScrollbar() {
   new ResizeObserver(apply).observe(de);
 }
 
-/* ——— Первый экран: постер всегда, видео только на широком экране ——— */
-function setupHero(videoSrc: string, posterSrc: string) {
+/* ——— Первый экран: фоновая фотография ———
+   Раньше здесь подключался таймлапс стройки, и половина функции уходила
+   на то, чтобы не отдать 4.65 МБ видео в мобильный трафик. Видео заменено
+   одной фотографией, поэтому от логики осталась одна строка. */
+function setupHero(posterSrc: string) {
   const poster = document.querySelector<HTMLElement>('[data-hero-poster]');
-  const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
   if (poster && posterSrc) poster.style.backgroundImage = `url(${posterSrc})`;
-  if (!video || !videoSrc) { video?.remove(); return; }
-
-  let loaded = false;
-
-  /**
-   * Видео подключается только когда экран достаточно широкий. До этого
-   * момента у элемента нет src, то есть 2.3 МБ не уходят в мобильный
-   * трафик вообще — одного display:none для этого мало.
-   *
-   * Проверяем не только на старте, но и по ресайзу: страница могла
-   * загрузиться в скрытой или узкой вкладке, и тогда разовая проверка
-   * отключила бы видео навсегда.
-   */
-  const maybeLoad = () => {
-    if (loaded) return;
-    // innerWidth === 0 у скрытой вкладки — ждём, пока её покажут
-    if (!innerWidth || isSmall() || isReduced()) return;
-    loaded = true;
-    if (posterSrc) video.poster = posterSrc;
-    // muted обязателен именно свойством: без него браузер отклонит автозапуск
-    video.muted = true;
-    video.autoplay = true;
-    video.src = videoSrc;
-
-    // play() сразу после назначения src отклоняется — данных ещё нет,
-    // а в фоновой вкладке автозапуск откладывается. Пробуем по готовности
-    // и ещё раз, когда вкладку показали.
-    const tryPlay = () => { if (video.paused) video.play().catch(() => {}); };
-    video.addEventListener('canplay', tryPlay, { once: false });
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) tryPlay();
-    });
-    tryPlay();
-  };
-
-  maybeLoad();
-  if (!loaded) {
-    let queued = false;
-    addEventListener('resize', () => {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(() => { queued = false; maybeLoad(); });
-    }, { passive: true });
-  }
 }
 
 /* ——— Шапка: уплотняется после 60px прокрутки ——— */
@@ -363,9 +321,9 @@ function startParallax() {
   update();
 }
 
-export function initBehaviors(opts: { videoSrc: string; posterSrc: string }) {
+export function initBehaviors(opts: { posterSrc: string }) {
   trackScrollbar();
-  setupHero(opts.videoSrc, opts.posterSrc);
+  setupHero(opts.posterSrc);
   setupHeader();
   setupReveals();
   setupHeadingLines();

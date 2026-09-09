@@ -68,8 +68,6 @@ export const hero = {
     "Приватний будинок повного циклу — від першого ескізу до переданих ключів. Один договір, один підрядник, одна відповідальність.",
   primary: { label: "Розрахувати вартість", href: "#request" },
   secondary: { label: "Дивитись проєкти", href: "#projects" },
-  mediaCaption:
-    "Таймлапс будівництва: будинок у правій частині кадру, поле і небо — ліва половина",
   facts: [
     { value: todo.warrantyYears, label: "років гарантії" },
     { value: todo.parallelObjects, label: "обʼєктів одночасно" },

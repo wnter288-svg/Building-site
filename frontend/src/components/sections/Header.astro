@@ -72,12 +72,12 @@ const phoneHref = isStub(todo.phoneHref) ? null : `tel:${todo.phoneHref}`;
     align-items: center;
     gap: clamp(20px, 2.6vw, 38px);
     font: var(--t-small);
-    color: var(--c-len);
+    color: var(--head-fg);
   }
   .nav-links a { color: inherit; }
 
   .bar__right { display: flex; align-items: center; gap: 24px; }
-  .nav-phone { font: var(--t-small); letter-spacing: .02em; color: var(--c-len); }
+  .nav-phone { font: var(--t-small); letter-spacing: .02em; color: var(--head-fg); }
 
   .burger {
     width: 44px; height: 44px;
@@ -85,7 +85,7 @@ const phoneHref = isStub(todo.phoneHref) ? null : `tel:${todo.phoneHref}`;
     flex-direction: column; gap: 7px;
     background: none; border: 0; cursor: pointer; padding: 0;
   }
-  .burger span { width: 24px; height: 1px; background: var(--c-len); display: block; }
+  .burger span { width: 24px; height: 1px; background: var(--head-fg); display: block; }
 
   .mmenu {
     background: var(--c-hvoia);
@@ -113,4 +113,22 @@ const phoneHref = isStub(todo.phoneHref) ? null : `tel:${todo.phoneHref}`;
     padding-top: 24px;
   }
   .mmenu__foot a, .mmenu__foot span { font: var(--t-body); color: var(--c-len); }
+
+  /* Цвет шапки зависит от её состояния.
+     Сверху она прозрачная и лежит на светлой фотографии первого экрана —
+     текст обязан быть тёмным. После 60px прокрутки шапка становится
+     тёмной плашкой (.is-cond в global.css), и цвета возвращаются к Льну.
+     Токены переопределяются на .bar, потому что от них же красится
+     кнопка «Замовити дзвінок»: она собрана на --text-strong и
+     --border-soft. */
+  .dm-head:not(.is-cond) .bar {
+    --head-fg: var(--c-hvoia);
+    --text-strong: var(--c-hvoia);
+    --text-accent: var(--c-dub);
+    --border-soft: rgba(27, 36, 31, .22);
+    --border-strong: var(--c-moh);
+    --bg-page: var(--c-svet);
+    --bg-inset: var(--accent-050);
+  }
+  .dm-head.is-cond .bar { --head-fg: var(--c-len); }
 </style>

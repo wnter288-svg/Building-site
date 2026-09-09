@@ -3,14 +3,12 @@ import Eyebrow from '../ui/Eyebrow.astro';
 import Button from '../ui/Button.astro';
 import { hero } from '../../content/site';
 ---
-<section id="top" class="dm-dark hero">
-  <!-- Медиа. Постер стоит фоном сразу, видео подключается скриптом
-       и только на десктопе — на мобильном оно не грузится вообще. -->
+<section id="top" class="hero">
+  <!-- Фон — одна фотография. Раньше здесь крутился таймлапс стройки: он
+       весил 4.65 МБ, на мобильном не грузился вовсе и оставлял пустой
+       экран, поэтому заменён на статичный кадр. -->
   <div class="hero__media" data-hero-media>
-    <div class="hero__poster" data-hero-poster>
-      <span class="hero-cap">{hero.mediaCaption}</span>
-    </div>
-    <video class="hero__vid" data-hero-video muted loop playsinline preload="none"></video>
+    <div class="hero__poster" data-hero-poster></div>
   </div>
   <div class="hero__scrim hero__scrim--x"></div>
   <div class="hero__scrim hero__scrim--y"></div>
@@ -55,25 +53,25 @@ import { hero } from '../../content/site';
 </section>
 
 <style>
-  .hero { position: relative; min-height: 100svh; display: flex; flex-direction: column; overflow: hidden; }
+  /* Мелкие подписи первого экрана лежат на фотографии, а не на ровном
+     фоне, поэтому приглушённый Мох здесь не добирает норму контраста.
+     Внутри секции --text-muted подменяется на основной цвет текста —
+     Eyebrow и подписи фактов красятся от него и темнеют вместе с ним. */
+  .hero { position: relative; min-height: 100svh; display: flex; flex-direction: column; overflow: hidden; --text-muted: var(--text-body); }
   .hero__media { position: absolute; inset: -2% 0 0 0; z-index: 0; will-change: transform; }
   .hero__poster {
     position: absolute; inset: 0;
-    background: var(--c-hvoia);
+    background: var(--n-050);
     background-size: cover; background-position: center;
-    display: flex; align-items: flex-start; justify-content: flex-end;
-    padding: clamp(96px, 13vh, 150px) clamp(20px, 6vw, 90px) 0;
   }
-  .hero-cap {
-    max-width: 240px; text-align: right;
-    font: var(--t-eyebrow); letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
-    color: rgba(228, 223, 214, .34);
-  }
-  .hero__vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* Экран светлый, поэтому засветка, а не затемнение: слева фотография
+     уводится почти в цвет фона, чтобы тёмный заголовок читался поверх
+     неба и бликов, справа кадр остаётся чистым. */
   .hero__scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-  .hero__scrim--x { background: linear-gradient(90deg, rgba(27,36,31,.92) 0%, rgba(27,36,31,.78) 34%, rgba(27,36,31,.42) 68%, rgba(27,36,31,.24) 100%); }
-  .hero__scrim--y { background: linear-gradient(180deg, rgba(27,36,31,.6) 0%, rgba(27,36,31,0) 32%, rgba(27,36,31,0) 58%, rgba(27,36,31,.72) 100%); }
-  .hero__veil { position: absolute; inset: 0; z-index: 1; background: var(--c-hvoia); opacity: 0; pointer-events: none; }
+  .hero__scrim--x { background: linear-gradient(90deg, rgba(246,244,239,.72) 0%, rgba(246,244,239,.62) 44%, rgba(246,244,239,.16) 72%, rgba(246,244,239,.02) 100%); }
+  .hero__scrim--y { background: linear-gradient(180deg, rgba(246,244,239,.38) 0%, rgba(246,244,239,0) 30%, rgba(246,244,239,0) 54%, rgba(246,244,239,.60) 100%); }
+  .hero__veil { position: absolute; inset: 0; z-index: 1; background: var(--c-svet); opacity: 0; pointer-events: none; }
 
   .hero__body {
     position: relative; z-index: 2; flex: 1;
@@ -86,9 +84,9 @@ import { hero } from '../../content/site';
     margin: 0;
     font: 300 clamp(44px, 9.2vw, 124px)/1.04 var(--font-display);
     letter-spacing: var(--ls-display);
-    color: var(--c-len);
+    color: var(--text-strong);
   }
-  .hero__lead { font: var(--t-lead); color: rgba(228, 223, 214, .78); max-width: 44ch; text-wrap: pretty; }
+  .hero__lead { font: var(--t-lead); color: var(--text-body); max-width: 44ch; text-wrap: pretty; }
   .hero__actions { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 8px; }
 
   .hero__foot { position: relative; z-index: 2; padding: 0 clamp(20px, 4vw, 24px) clamp(32px, 5vh, 52px); }
@@ -100,14 +98,16 @@ import { hero } from '../../content/site';
   .facts { display: flex; flex-wrap: wrap; gap: clamp(28px, 5vw, 72px); }
   .fact {
     display: flex; flex-direction: column; gap: 8px;
-    border-top: 1px solid rgba(228, 223, 214, .22);
+    border-top: 1px solid var(--border-soft);
     padding-top: 16px; min-width: 150px;
   }
-  .fact__v { font: 400 clamp(32px, 3.4vw, 52px)/1 var(--font-display); color: var(--c-len); }
-  .fact__l { font: var(--t-caption); color: rgba(228, 223, 214, .6); }
+  .fact__v { font: 400 clamp(32px, 3.4vw, 52px)/1 var(--font-display); color: var(--text-strong); }
+  .fact__l { font: var(--t-caption); color: var(--text-muted); }
 
   .scroll { display: flex; align-items: center; gap: 16px; }
-  .scroll__label { font: var(--t-eyebrow); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: rgba(228,223,214,.5); }
-  .scroll__track { position: relative; display: block; width: 1px; height: 64px; background: rgba(228,223,214,.2); overflow: hidden; }
-  .scroll-run { position: absolute; inset: 0; background: var(--c-dub-light); animation: dmRun 2.8s var(--ease-calm) infinite; }
+  /* Лежит в правой части кадра, где засветки почти нет, поэтому цвет
+     основной, а не приглушённый — иначе не добирает норму контраста. */
+  .scroll__label { font: var(--t-eyebrow); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--text-strong); }
+  .scroll__track { position: relative; display: block; width: 1px; height: 64px; background: var(--border-soft); overflow: hidden; }
+  .scroll-run { position: absolute; inset: 0; background: var(--text-accent); animation: dmRun 2.8s var(--ease-calm) infinite; }
 </style>
