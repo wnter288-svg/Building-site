@@ -67,8 +67,8 @@
   --bg-inset:rgba(228,223,214,.06);
   --text-strong:var(--c-len);
   --text-body:var(--c-len);
-  --text-muted:rgba(228,223,214,.66);
-  --text-faint:rgba(228,223,214,.44);
+  --text-muted:rgba(228,223,214,.76);
+  --text-faint:rgba(228,223,214,.58);
   --text-accent:var(--c-dub-light);
   --text-on-accent:var(--c-hvoia);
   --border-hairline:rgba(228,223,214,.16);

@@ -24,8 +24,22 @@ import { services } from '../../content/site';
 </section>
 
 <style>
-  .services { padding: clamp(72px, 9vw, 120px) clamp(20px, 4vw, 24px); }
-  .services__inner { max-width: 1280px; margin: 0 auto; }
+  .services { position: relative; overflow: hidden; padding: clamp(72px, 9vw, 120px) clamp(20px, 4vw, 24px); }
+
+  /* Фон замощён компактным знаком из public/mark.svg. Знак подан
+     маской, а не картинкой: тон берётся из background-color, то есть
+     из токена темы, и один файл работает на любом фоне.
+     Прозрачность держим очень низкой — это фактура, а не узор: текст
+     секции только что вычищен по контрасту, ронять его обратно нельзя. */
+  .services::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-color: var(--text-strong);
+    opacity: .045;
+    -webkit-mask-image: url("/mark-tile.svg"); mask-image: url("/mark-tile.svg");
+    -webkit-mask-repeat: repeat; mask-repeat: repeat;
+    -webkit-mask-size: 152px auto; mask-size: 152px auto;
+  }
+  .services__inner { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; }
   .services__head {
     display: flex; flex-direction: column; gap: clamp(18px, 2vw, 24px);
     margin-bottom: clamp(48px, 6vw, 80px); max-width: 640px;
@@ -36,21 +50,71 @@ import { services } from '../../content/site';
     letter-spacing: var(--ls-display);
     color: var(--text-strong);
   }
+
+  /* Блоки сдвинуты лесенкой, а по их верхним границам идёт непрерывная
+     линия: горизонтальный отрезок по блоку, спуск в зазоре, снова
+     горизонтальный. Секция читается как маршрут, а не как три карточки,
+     и не повторяет ни нумерованный «Процес», ни аккордеон вопросов.
+     Шаг и зазор вынесены в переменные: от них считается и длина
+     горизонтали (блок плюс зазор), и высота спуска. */
   .services__grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: clamp(28px, 4vw, 56px);
+    --svc-gap: clamp(28px, 4vw, 56px);
+    --svc-step: clamp(30px, 4.5vw, 72px);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: var(--svc-gap);
+    align-items: start;
   }
   .svc {
-    border-top: 1px solid var(--border-hairline);
+    position: relative;
     padding: clamp(24px, 2.6vw, 32px) 0 0;
     display: flex; flex-direction: column; gap: 20px;
+    transition: opacity var(--d-base) var(--ease-calm);
   }
+  .svc:nth-child(2) { margin-top: var(--svc-step); }
+  .svc:nth-child(3) { margin-top: calc(var(--svc-step) * 2); }
+
+  /* горизонталь ступени: по всему блоку и дальше через зазор */
+  .svc::before {
+    content: ""; position: absolute; top: 0; left: 0;
+    width: calc(100% + var(--svc-gap)); height: 1px;
+    background: var(--border-hairline);
+    transition: background var(--d-base) var(--ease-calm);
+  }
+  .svc:last-child::before { width: 100%; }
+
+  /* спуск на следующую ступень — ровно там, где кончилась горизонталь */
+  .svc:not(:first-child)::after {
+    content: ""; position: absolute; left: 0;
+    top: calc(-1 * var(--svc-step)); height: var(--svc-step); width: 1px;
+    background: var(--border-hairline);
+  }
+
+  /* Наведение: соседи приглушаются, у активного линия становится
+     акцентной. Работает от сетки, поэтому в покое ничего не меняется. */
+  .services__grid:hover .svc { opacity: .55; }
+  .services__grid:hover .svc:hover { opacity: 1; }
+  .svc:hover::before { background: var(--border-accent); }
+
   .svc__n { font: 400 clamp(28px, 2.4vw, 36px)/1 var(--font-display); color: var(--text-accent); }
   .svc__title { margin: 0; font: 400 clamp(21px, 2vw, 28px)/1.3 var(--font-display); color: var(--text-strong); }
   .svc__text { font: var(--t-body); color: var(--text-muted); max-width: 38ch; text-wrap: pretty; }
   .svc__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  /* Был --text-faint: на тёмном фоне это 3.47:1 при норме 4.5 — пункт из
+     QA-прогона. Палитру не трогаю, она согласована, беру более
+     контрастный токен только здесь. */
   .svc__list li {
-    font: var(--t-small); color: var(--text-faint);
+    font: var(--t-small); color: var(--text-muted);
     border-top: 1px solid var(--border-hairline); padding-top: 10px;
+  }
+
+  /* Узкий экран: лесенка теряет смысл — блоки идут друг под другом,
+     линия снова становится обычной верхней границей. */
+  @media (max-width: 900px) {
+    .services__grid { grid-template-columns: 1fr; row-gap: clamp(28px, 6vw, 44px); }
+    .svc:nth-child(2), .svc:nth-child(3) { margin-top: 0; }
+    .svc::before { width: 100%; }
+    .svc:not(:first-child)::after { display: none; }
+    .services__grid:hover .svc { opacity: 1; }
   }
 </style>
