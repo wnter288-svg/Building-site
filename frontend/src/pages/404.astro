@@ -56,13 +56,10 @@ const hasPhoto = !isStub(notFound.photo);
 
         <p class="nf__lead">{notFound.lead}</p>
 
-        <div class="nf__acts">
-          <a class="nf__back ln" href={notFound.primary.href}>
-            <span class="nf__arw" aria-hidden="true">&#8592;</span>
-            <span>{notFound.primary.label}</span>
-          </a>
-          <a class="nf__alt ln" href={notFound.secondary.href}>{notFound.secondary.label}</a>
-        </div>
+        <a class="nf__back ln" href={notFound.primary.href}>
+          <span class="nf__arw" aria-hidden="true">&#8592;</span>
+          <span>{notFound.primary.label}</span>
+        </a>
       </div>
     </main>
   </div>
@@ -186,18 +183,13 @@ const hasPhoto = !isStub(notFound.photo);
     text-wrap: pretty;
   }
 
-  /* ——— Действия ———
+  /* ——— Действие ———
      Вместо залитой кнопки — ссылка со стрелкой, как в присланном
      референсе: на снимке во весь экран тёмный прямоугольник читается
-     как заплатка. */
-  .nf__acts {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: clamp(var(--s-20), 2.5vw, var(--s-40));
-    margin-top: clamp(var(--s-8), 1vw, var(--s-16));
-  }
+     как заплатка. Действие ровно одно: с ошибочного адреса человеку
+     нужно выбраться, а не выбирать. */
   .nf__back {
+    margin-top: clamp(var(--s-8), 1vw, var(--s-16));
     display: inline-flex;
     align-items: center;
     gap: var(--s-12);
@@ -215,9 +207,6 @@ const hasPhoto = !isStub(notFound.photo);
     transition: transform .28s var(--ease-calm);
   }
   .nf__back:hover .nf__arw { transform: translateX(-7px); }
-
-  .nf__alt { font: var(--t-small); color: var(--text-muted); }
-  .nf__alt:hover { color: var(--text-strong); }
 
   @media (prefers-reduced-motion: reduce) {
     .nf__arw { transition: none; }
