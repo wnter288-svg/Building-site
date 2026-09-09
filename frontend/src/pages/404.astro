@@ -1,6 +1,6 @@
 ---
 /**
- * Страница 404. Одна ширма во весь экран: слева текст, справа кадр.
+ * Страница 404. Кадр во весь экран, текст поверх него.
  *
  * Своего скрипта на странице нет, и это осознанно: ошибочный адрес —
  * худший момент, чтобы зависеть от бандла, который сам может не
@@ -11,7 +11,6 @@
 import Layout from '../layouts/Layout.astro';
 import Logo from '../components/ui/Logo.astro';
 import Eyebrow from '../components/ui/Eyebrow.astro';
-import Button from '../components/ui/Button.astro';
 import { notFound, isStub } from '../content/site';
 
 export const prerender = true;
@@ -20,6 +19,18 @@ const hasPhoto = !isStub(notFound.photo);
 ---
 <Layout title={notFound.meta.title} description={notFound.meta.description} noindex>
   <div class="nf">
+    {hasPhoto && (
+      <img
+        class="nf__bg"
+        src={notFound.photo}
+        alt={notFound.mediaAlt}
+        width="1829"
+        height="860"
+        fetchpriority="high"
+        decoding="async"
+      />
+    )}
+
     <header class="nf__head">
       <div class="nf__bar">
         <a href="/" class="nf__logo" aria-label="DIMORA, на головну">
@@ -46,59 +57,71 @@ const hasPhoto = !isStub(notFound.photo);
         <p class="nf__lead">{notFound.lead}</p>
 
         <div class="nf__acts">
-          <Button href={notFound.primary.href}>{notFound.primary.label}</Button>
+          <a class="nf__back ln" href={notFound.primary.href}>
+            <span class="nf__arw" aria-hidden="true">&#8592;</span>
+            <span>{notFound.primary.label}</span>
+          </a>
           <a class="nf__alt ln" href={notFound.secondary.href}>{notFound.secondary.label}</a>
         </div>
       </div>
     </main>
-
-    <!-- Кадр в край: сеткой служит сама ширма, поэтому фото упирается
-         в правый край экрана и в верх с низом страницы. -->
-    <div class="nf__media dm-dark">
-      {hasPhoto && (
-        <img
-          class="nf__img"
-          src={notFound.photo}
-          alt={notFound.mediaAlt}
-          width="710"
-          height="888"
-          decoding="async"
-        />
-      )}
-    </div>
   </div>
 </Layout>
 
 <style>
-  /* Порядок в разметке — шапка, текст, фото: так читалка и поиск видят
-     сначала суть, а не декорацию. Сетка ставит фото на место сама. */
   .nf {
-    background: var(--c-svet);
+    position: relative;
+    isolation: isolate;
     min-height: 100svh;
     display: grid;
-    grid-template-columns: 1fr;
-    grid-template-areas: "head" "body" "media";
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr;
+    /* Фон под кадром на случай, если снимок не приедет: страница
+       останется читаемой, а не станет белым листом. */
+    background: var(--c-svet);
   }
 
-  /* Сплит включается на том же пороге 821px, что и в «Про компанію», —
-     один порог на весь сайт вместо двух. */
-  @media (min-width: 821px) {
-    .nf {
-      grid-template-columns: minmax(0, 54fr) minmax(0, 46fr);
-      grid-template-areas: "head  media" "body  media";
-      grid-template-rows: auto 1fr;
-    }
+  /* ——— Кадр ———
+     Снимок шире любого экрана (2.13:1), поэтому cover режет его по
+     бокам. Держим привязку слева: пустое небо остаётся под текстом,
+     а дом уходит вправо — ровно та композиция, что в оригинале. */
+  .nf__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left center;
+    z-index: -1;
   }
+  /* На широком экране обрезка мягче, и кадр можно подвинуть: в поле
+     зрения входит крона, а текст всё ещё лежит на небе.
+     Замерено по этому снимку: самая тёмная точка в зоне текста —
+     0.583 яркости, это Хвоя 9.6:1 и Мох 4.57:1. Ниже 4.5 не опускаемся,
+     поэтому мелкий текст на странице набран не Мхом (см. --text-muted). */
+  @media (min-width: 821px) {
+    .nf__bg { object-position: 25% center; }
+  }
+
+  /* ——— Общее поле слева ———
+     Шапка и текст считают одно и то же смещение, поэтому стоят на одной
+     вертикали. Контейнер сайта 1280 сдвинут к краю: на этой странице
+     текст лежит на пустом небе, и прижимать его к середине незачем.
+     Поправка --sbw не нужна: ширма ровно в экран, полосы прокрутки нет,
+     значит 100vw равен ширине контента. */
+  .nf { --nf-x: max(clamp(20px, 4vw, 24px), calc((100vw - 1280px) / 2 - clamp(0px, 2.2vw, 40px))); }
+
+  /* Мелкий текст поверх снимка набираем --text-body вместо Мха: Мох даёт
+     4.57:1 при норме 4.5 — запас в сотые, любая правка кадра его съест.
+     --text-body в той же точке даёт 7.07:1. Крупное «404» ниже забирает
+     настоящий Мох обратно: для крупного текста норма 3.0. */
+  .nf__head, .nf__body { --text-muted: var(--text-body); }
 
   /* ——— Шапка ———
      Своя, а не Header.astro: тот светит Льном по тёмному видео первого
-     экрана и на светлой странице стал бы невидимым. Здесь нужны только
-     логотип и две ссылки — ни телефона, ни бургера. */
-  .nf__head { grid-area: head; padding: 26px clamp(20px, 4vw, 24px) 0; }
+     экрана и на светлом небе стал бы невидимым. Здесь нужны только
+     логотип и две ссылки — ни телефона, ни CTA, ни бургера. */
+  .nf__head { position: relative; padding: 26px var(--nf-x) 0; }
   .nf__bar {
-    max-width: 1280px;
-    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -120,20 +143,10 @@ const hasPhoto = !isStub(notFound.photo);
 
   /* ——— Текст ——— */
   .nf__body {
-    grid-area: body;
+    position: relative;
     display: flex;
     align-items: center;
-    padding: clamp(56px, 8vw, 96px) clamp(20px, 4vw, 24px) clamp(48px, 7vw, 88px);
-  }
-  /* Левое поле совпадает с шапкой: обе стороны считают одно и то же
-     центрирование контейнера 1280. Полосы прокрутки на этой странице
-     нет (ширма ровно в экран), поэтому поправка --sbw не нужна —
-     100vw здесь равен ширине контента. */
-  @media (min-width: 821px) {
-    .nf__body {
-      padding-left: max(clamp(20px, 4vw, 24px), calc((100vw - 1280px) / 2));
-      padding-right: clamp(var(--s-32), 5vw, var(--s-96));
-    }
+    padding: clamp(48px, 7vw, 88px) var(--nf-x) clamp(56px, 8vw, 104px);
   }
 
   .nf__text {
@@ -141,17 +154,22 @@ const hasPhoto = !isStub(notFound.photo);
     flex-direction: column;
     align-items: flex-start;
     gap: clamp(var(--s-16), 2vw, var(--s-24));
-    max-width: var(--measure);
+    /* Уже обычной меры: строка не должна уезжать с неба на дом. */
+    max-width: min(var(--measure), 46vw);
+  }
+  @media (max-width: 820px) {
+    .nf__text { max-width: var(--measure); }
   }
 
   /* Код ошибки. Крупный, но не кричащий: цифры набраны тем же
-     Cormorant, что и заголовки, светлым начертанием и Мхом — иначе
-     они спорят с h1 за первое место в кадре. */
+     Cormorant, что и заголовки, светлым начертанием и настоящим Мхом —
+     иначе они спорят с h1 за первое место в кадре. Кегль крупный,
+     поэтому норма контраста 3.0, а не 4.5. */
   .nf__code {
     margin: 0;
     font: 300 clamp(72px, 12vw, 148px)/0.9 var(--font-display);
     letter-spacing: var(--ls-display);
-    color: var(--text-muted);
+    color: var(--c-moh);
   }
 
   .nf__title {
@@ -168,32 +186,40 @@ const hasPhoto = !isStub(notFound.photo);
     text-wrap: pretty;
   }
 
+  /* ——— Действия ———
+     Вместо залитой кнопки — ссылка со стрелкой, как в присланном
+     референсе: на снимке во весь экран тёмный прямоугольник читается
+     как заплатка. */
   .nf__acts {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: clamp(var(--s-16), 2vw, var(--s-32));
-    margin-top: var(--s-8);
+    gap: clamp(var(--s-20), 2.5vw, var(--s-40));
+    margin-top: clamp(var(--s-8), 1vw, var(--s-16));
   }
+  .nf__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-12);
+    font: var(--t-button);
+    letter-spacing: var(--ls-button);
+    text-transform: uppercase;
+    color: var(--text-strong);
+  }
+  /* Стрелка уезжает влево — туда же, куда ведёт ссылка. Общий класс
+     .arw из global.css двигает вправо, поэтому здесь своя. */
+  .nf__arw {
+    display: inline-block;
+    font-size: 1.2em;
+    line-height: 1;
+    transition: transform .28s var(--ease-calm);
+  }
+  .nf__back:hover .nf__arw { transform: translateX(-7px); }
+
   .nf__alt { font: var(--t-small); color: var(--text-muted); }
   .nf__alt:hover { color: var(--text-strong); }
 
-  /* ——— Кадр ——— */
-  .nf__media {
-    grid-area: media;
-    position: relative;
-    overflow: hidden;
-    background: var(--c-hvoia);
-    /* В одну колонку кадр во всю высоту дал бы вторую ширму под текстом:
-       на телефоне он всего лишь полоса-подпись, а не половина страницы. */
-    aspect-ratio: 16 / 10;
-    max-height: 38svh;
+  @media (prefers-reduced-motion: reduce) {
+    .nf__arw { transition: none; }
   }
-  /* На десктопе высоту задаёт не пропорция, а соседняя колонка: сетка
-     тянет оба столбца на высоту строки. Поэтому фото упирается ровно
-     в верх и низ экрана. */
-  @media (min-width: 821px) {
-    .nf__media { aspect-ratio: auto; max-height: none; height: 100%; }
-  }
-  .nf__img { width: 100%; height: 100%; object-fit: cover; display: block; }
 </style>

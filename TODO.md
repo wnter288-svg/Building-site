@@ -89,8 +89,8 @@
       отправит. Сейчас от этого стоят лимит частоты и honeypot.
 
 ### SEO и UX [Д]
-- [x] **Своя страница 404** — `frontend/src/pages/404.astro`, ширма во
-      весь экран: слева текст, справа кадр. Своего JS нет, `noindex`,
+- [x] **Своя страница 404** — `frontend/src/pages/404.astro`, кадр во
+      весь экран и текст поверх него. Своего JS нет, `noindex`,
       canonical не ставится, в sitemap не попадает — 2026-09-09
 - [ ] **`site` в `astro.config.mjs` — заглушка** `dimora.vercel.app`.
       От него считаются canonical, Open Graph и sitemap.

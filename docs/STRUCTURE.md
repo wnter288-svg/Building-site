@@ -40,7 +40,8 @@ Building-site/
 ├── frontend/              # сайт DIMORA (Astro + TypeScript)
 │   ├── astro.config.mjs   # адаптер Vercel, sitemap
 │   ├── .env.example       # имена переменных Telegram, без значений
-│   ├── public/            # hero.mp4, poster.jpg, about.jpg, favicon.svg
+│   ├── public/            # hero.mp4, poster.jpg, about.jpg, 404.jpg,
+│   │                      # favicon.svg
 │   └── src/
 │       ├── content/site.ts        # ВЕСЬ текст сайта и заглушки
 │       ├── layouts/Layout.astro   # шрифты, метатеги, JSON-LD
