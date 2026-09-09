@@ -20,8 +20,8 @@ import '@fontsource-variable/inter';
 import '../styles/global.css';
 import { meta, todo, isStub } from '../content/site';
 
-interface Props { title?: string; description?: string }
-const { title = meta.title, description = meta.description } = Astro.props;
+interface Props { title?: string; description?: string; noindex?: boolean }
+const { title = meta.title, description = meta.description, noindex = false } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com').toString();
 const ogImage = new URL('/og.png', Astro.site ?? 'https://example.com').toString();
@@ -51,7 +51,11 @@ if (!isStub(todo.email)) org.email = todo.email;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {/* Страница ошибки не индексируется, и canonical на несуществующий
+        адрес ей не нужен: он подтвердил бы поиску, что адрес рабочий. */}
+    {noindex
+      ? <meta name="robots" content="noindex, follow" />
+      : <link rel="canonical" href={canonical} />}
     <meta name="theme-color" content="#1B241F" />
 
     <meta property="og:type" content="website" />

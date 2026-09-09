@@ -46,6 +46,7 @@ Building-site/
 │       ├── layouts/Layout.astro   # шрифты, метатеги, JSON-LD
 │       ├── pages/
 │       │   ├── index.astro        # сборка секций
+│       │   ├── 404.astro          # страница ошибки, без своего JS
 │       │   ├── robots.txt.ts
 │       │   └── api/lead.ts        # приём заявки → Telegram
 │       ├── components/
@@ -83,6 +84,7 @@ Building-site/
 | Формат заявки | `docs/API.md` |
 | Поменять текст на сайте | `frontend/src/content/site.ts` |
 | Идеи и запасные варианты | `docs/RECOMMENDATIONS.md` |
+| Как выполнять процедуру: доки, структура, тесты, советы | `.claude/skills/<имя>/SKILL.md` |
 
 ---
 
